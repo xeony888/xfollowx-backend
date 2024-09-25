@@ -1,0 +1,835 @@
+{
+  "address": "AmALWff1RUvs6QsXyLZPVbbZMCuz3dr4dfRdT9bqMaAF",
+  "metadata": {
+    "name": "lens_payment",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "cancel",
+      "discriminator": [
+        232,
+        219,
+        223,
+        41,
+        219,
+        236,
+        220,
+        190
+      ],
+      "accounts": [
+        {
+          "name": "signer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "payment_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  97,
+                  121,
+                  109,
+                  101,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "group_id"
+              },
+              {
+                "kind": "arg",
+                "path": "id"
+              },
+              {
+                "kind": "arg",
+                "path": "level"
+              }
+            ]
+          }
+        },
+        {
+          "name": "payment_holder_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "payment_account"
+              }
+            ]
+          }
+        },
+        {
+          "name": "payment_group_account",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  114,
+                  111,
+                  117,
+                  112
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "group_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "group_id",
+          "type": "u64"
+        },
+        {
+          "name": "id",
+          "type": "u64"
+        },
+        {
+          "name": "level",
+          "type": "u8"
+        },
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "create_payment_group",
+      "discriminator": [
+        254,
+        41,
+        239,
+        12,
+        95,
+        63,
+        115,
+        87
+      ],
+      "accounts": [
+        {
+          "name": "signer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "payment_group_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  114,
+                  111,
+                  117,
+                  112
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "payment_group_holder_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "payment_group_account"
+              }
+            ]
+          }
+        },
+        {
+          "name": "global_data_account",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  111,
+                  98,
+                  97,
+                  108
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "global_holder_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  104,
+                  111,
+                  108,
+                  100,
+                  101,
+                  114
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "creator",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "id",
+          "type": "u64"
+        },
+        {
+          "name": "withdraw_authority",
+          "type": "pubkey"
+        },
+        {
+          "name": "lamports_per_sec",
+          "type": "u64"
+        },
+        {
+          "name": "bypass",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "name": "initialize",
+      "discriminator": [
+        175,
+        175,
+        109,
+        31,
+        13,
+        152,
+        155,
+        237
+      ],
+      "accounts": [
+        {
+          "name": "signer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "global_data_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  111,
+                  98,
+                  97,
+                  108
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "global_holder_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  104,
+                  111,
+                  108,
+                  100,
+                  101,
+                  114
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "modify_global_data",
+      "discriminator": [
+        119,
+        216,
+        52,
+        71,
+        13,
+        253,
+        135,
+        128
+      ],
+      "accounts": [
+        {
+          "name": "signer",
+          "signer": true
+        },
+        {
+          "name": "global_data_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  111,
+                  98,
+                  97,
+                  108
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "fee_perc",
+          "type": "u64"
+        },
+        {
+          "name": "init_fee",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "modify_payment_group",
+      "discriminator": [
+        205,
+        231,
+        225,
+        76,
+        93,
+        27,
+        147,
+        47
+      ],
+      "accounts": [
+        {
+          "name": "signer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "payment_group_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  114,
+                  111,
+                  117,
+                  112
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "id"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "id",
+          "type": "u64"
+        },
+        {
+          "name": "withdraw_authority",
+          "type": "pubkey"
+        },
+        {
+          "name": "lamports_per_sec",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "pay",
+      "discriminator": [
+        119,
+        18,
+        216,
+        65,
+        192,
+        117,
+        122,
+        220
+      ],
+      "accounts": [
+        {
+          "name": "signer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "payment_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  97,
+                  121,
+                  109,
+                  101,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "group_id"
+              },
+              {
+                "kind": "arg",
+                "path": "id"
+              },
+              {
+                "kind": "arg",
+                "path": "level"
+              }
+            ]
+          }
+        },
+        {
+          "name": "payment_holder_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "payment_account"
+              }
+            ]
+          }
+        },
+        {
+          "name": "payment_group_account",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  114,
+                  111,
+                  117,
+                  112
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "group_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "global_data_account",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  111,
+                  98,
+                  97,
+                  108
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "global_holder_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  104,
+                  111,
+                  108,
+                  100,
+                  101,
+                  114
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "group_id",
+          "type": "u64"
+        },
+        {
+          "name": "id",
+          "type": "u64"
+        },
+        {
+          "name": "level",
+          "type": "u8"
+        },
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "withdraw",
+      "discriminator": [
+        183,
+        18,
+        70,
+        156,
+        148,
+        109,
+        161,
+        34
+      ],
+      "accounts": [
+        {
+          "name": "signer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "payment_account",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  97,
+                  121,
+                  109,
+                  101,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "group_id"
+              },
+              {
+                "kind": "arg",
+                "path": "id"
+              },
+              {
+                "kind": "arg",
+                "path": "level"
+              }
+            ]
+          }
+        },
+        {
+          "name": "payment_holder_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "payment_account"
+              }
+            ]
+          }
+        },
+        {
+          "name": "payment_group_account",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  114,
+                  111,
+                  117,
+                  112
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "group_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "group_id",
+          "type": "u64"
+        },
+        {
+          "name": "id",
+          "type": "u64"
+        },
+        {
+          "name": "level",
+          "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "withdraw_program_funds",
+      "discriminator": [
+        221,
+        229,
+        193,
+        168,
+        190,
+        61,
+        88,
+        198
+      ],
+      "accounts": [
+        {
+          "name": "signer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "global_holder_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  104,
+                  111,
+                  108,
+                  100,
+                  101,
+                  114
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    }
+  ],
+  "accounts": [
+    {
+      "name": "GlobalDataAccount",
+      "discriminator": [
+        187,
+        155,
+        184,
+        162,
+        121,
+        9,
+        202,
+        5
+      ]
+    },
+    {
+      "name": "PaymentAccount",
+      "discriminator": [
+        47,
+        239,
+        218,
+        78,
+        43,
+        193,
+        1,
+        61
+      ]
+    },
+    {
+      "name": "PaymentGroupAccount",
+      "discriminator": [
+        114,
+        58,
+        66,
+        78,
+        165,
+        40,
+        1,
+        133
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "InvalidCreator",
+      "msg": "Invalid creator"
+    },
+    {
+      "code": 6001,
+      "name": "InvalidModifyAuthority",
+      "msg": "Invalid modify authority"
+    },
+    {
+      "code": 6002,
+      "name": "InvalidPaymentAuthority",
+      "msg": "Invalid payment authority"
+    },
+    {
+      "code": 6003,
+      "name": "CannotCancelPast",
+      "msg": "Cannot cancel past"
+    },
+    {
+      "code": 6004,
+      "name": "OverflowError",
+      "msg": "Overflow error"
+    },
+    {
+      "code": 6005,
+      "name": "InvalidWithdrawAuthority",
+      "msg": "Invalid withdraw authority"
+    }
+  ],
+  "types": [
+    {
+      "name": "GlobalDataAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "fee_perc",
+            "type": "u64"
+          },
+          {
+            "name": "init_fee",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PaymentAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "id",
+            "type": "u64"
+          },
+          {
+            "name": "group_id",
+            "type": "u64"
+          },
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "until",
+            "type": "u64"
+          },
+          {
+            "name": "level",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PaymentGroupAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "id",
+            "type": "u64"
+          },
+          {
+            "name": "modify_authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "withdraw_authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "lamports_per_sec",
+            "type": "u64"
+          },
+          {
+            "name": "bypass",
+            "type": "bool"
+          }
+        ]
+      }
+    }
+  ]
+}

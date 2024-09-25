@@ -21,9 +21,16 @@ model User {
   servers     Server[]
 }
 
+enum Subscription {
+  CHAIN
+  STRIPE
+  UNDEFINED
+}
+
 model Server {
-  id                     String  @id @default(uuid())
-  owner                  User?   @relation(fields: [ownerWallet], references: [wallet])
+  id                     Int          @id @default(autoincrement())
+  owner                  User?        @relation(fields: [ownerWallet], references: [wallet])
   ownerWallet            String?
   connectedDiscordServer String?
+  subscription           Subscription
 }
