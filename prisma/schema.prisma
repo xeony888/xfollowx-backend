@@ -14,11 +14,11 @@ datasource db {
 }
 
 model User {
-  wallet      String   @id
-  discordId   String?
-  discordName String?
-  twitters    String[]
-  servers     Server[]
+  discordId   String  @id
+  discordName String
+  twitter     String?
+  server      Server? @relation(fields: [serverId], references: [id])
+  serverId    Int?    @unique
 }
 
 enum Subscription {
@@ -29,8 +29,8 @@ enum Subscription {
 
 model Server {
   id                     Int          @id @default(autoincrement())
-  owner                  User?        @relation(fields: [ownerWallet], references: [wallet])
-  ownerWallet            String?
+  owner                  User?
+  ownerDiscord           String?
   connectedDiscordServer String?
   subscription           Subscription
 }

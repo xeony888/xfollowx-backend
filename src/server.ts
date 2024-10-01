@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { verifyBot, verifyPayment, verifySignature, verifyUserOwnsServer } from "./middleware";
+import { verifyBot, verifyPayment, verifySignature, verifyUser, verifyUserOwnsServer } from "./middleware";
 import { PrismaClient, Subscription } from "@prisma/client";
 import dotenv from "dotenv";
 
@@ -13,15 +13,15 @@ app.use(express.json());
 export const prisma = new PrismaClient();
 
 
-app.get("/:user", verifySignature, async (req, res) => {
+app.get("/:user", verifyUser, async (req, res) => {
     try {
         const { user } = req.params;
         const data = await prisma.user.findUnique({
             where: {
-                wallet: user,
+                discordId: user,
             },
             include: {
-                servers: true
+                server: true
             }
         });
         if (data) {
@@ -29,7 +29,8 @@ app.get("/:user", verifySignature, async (req, res) => {
         } else {
             const u = await prisma.user.create({
                 data: {
-                    wallet: user,
+                    discordId: user,
+                    discordName: req.query.discordName as string,
                 }
             });
             return res.status(200).json(u);
@@ -39,18 +40,16 @@ app.get("/:user", verifySignature, async (req, res) => {
         return res.status(500).send("Error");
     }
 });
-app.post("/:user/twitter/add", verifySignature, async (req, res) => {
+app.post("/:user/twitter/add", verifyUser, async (req, res) => {
     try {
         const { twitter } = req.body;
         const { user } = req.params;
         const u = await prisma.user.update({
             where: {
-                wallet: user
+                discordId: user
             },
             data: {
-                twitters: {
-                    push: twitter,
-                }
+                twitter,
             }
         });
         if (u) {
@@ -63,23 +62,15 @@ app.post("/:user/twitter/add", verifySignature, async (req, res) => {
         return res.status(500).send("Error");
     }
 });
-app.post("/:user/twitter/remove", verifySignature, async (req, res) => {
+app.post("/:user/twitter/remove", verifyUser, async (req, res) => {
     try {
-        const { twitter } = req.body;
         const { user } = req.params;
-        const u = await prisma.user.findUnique({
-            where: {
-                wallet: user, // Replace with the actual wallet value
-            },
-        });
-        if (!u) return res.status(404).send("Not found");
-        const updatedTwitters = u.twitters.filter((t) => t !== twitter);
         const updatedUser = await prisma.user.update({
             where: {
-                wallet: user,
+                discordId: user,
             },
             data: {
-                twitters: updatedTwitters
+                twitter: null
             },
         });
         if (updatedUser) {
@@ -92,25 +83,7 @@ app.post("/:user/twitter/remove", verifySignature, async (req, res) => {
         return res.status(500).send("Error");
     }
 });
-app.post("/:user/discord", verifySignature, async (req, res) => {
-    try {
-        const { user } = req.params;
-        const { discord_id, discord_name } = req.body;
-        const updated = await prisma.user.update({
-            where: {
-                wallet: user,
-            },
-            data: {
-                discordId: discord_id,
-                discordName: discord_name
-            }
-        });
-    } catch (e) {
-        console.error(e);
-        return res.status(500).send("Error");
-    }
-});
-app.post("/server/:id/set/", verifySignature, verifyUserOwnsServer, async (req, res) => {
+app.post("/server/:id/set/", verifyUser, verifyUserOwnsServer, async (req, res) => {
     try {
         const { type } = req.body;
         const { id } = req.params;
@@ -129,14 +102,14 @@ app.post("/server/:id/set/", verifySignature, verifyUserOwnsServer, async (req, 
         return res.status(500).json({ error: "Internal server error" });
     }
 });
-app.post("/server", verifySignature, async (req, res) => {
+app.post("/server", verifyUser, async (req, res) => {
     try {
-        const { pubkey } = req.body;
+        const { discordId } = req.body;
         const server = await prisma.server.create({
             data: {
                 owner: {
                     connect: {
-                        wallet: pubkey
+                        discordId,
                     }
                 },
                 subscription: Subscription.UNDEFINED,
@@ -151,7 +124,7 @@ app.post("/server", verifySignature, async (req, res) => {
 app.post("/bot/link", verifyBot, async (req, res) => {
     try {
         const { guildId, userId, serverId } = req.body;
-        const user = await prisma.user.findFirst({
+        const user = await prisma.user.findUnique({
             where: {
                 discordId: userId,
             }
@@ -160,7 +133,7 @@ app.post("/bot/link", verifyBot, async (req, res) => {
         const server = await prisma.server.update({
             where: {
                 id: serverId,
-                ownerWallet: user.wallet,
+                ownerDiscord: user.discordId,
             },
             data: {
                 connectedDiscordServer: guildId,

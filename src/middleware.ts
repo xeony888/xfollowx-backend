@@ -5,6 +5,33 @@ import { prisma } from './server';
 import { Subscription } from '@prisma/client';
 
 
+export async function verifyUser(req: Request, res: Response, next: NextFunction) {
+    try {
+        const target = req.method === "POST" ? req.body : req.query;
+        const { discordId, access } = target;
+        const response = await fetch("https://discord.com/api/v10/users/@me",
+            {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${access}`
+                }
+            }
+        );
+        if (response.ok) {
+            const userInfo = await response.json();
+            if (userInfo.id === discordId) {
+                return next();
+            } else {
+                return res.status(403).json({ error: "Unauthorized" });
+            }
+        } else {
+            return res.status(404).json({ error: "Not found" });
+        }
+    } catch (e) {
+        console.error(e);
+        return res.status(500).json({ error: "Internal server error" });
+    }
+}
 export async function verifySignature(req: Request, res: Response, next: NextFunction) {
     try {
         let target = req.method === "POST" ? req.body : req.query;
@@ -26,7 +53,7 @@ export async function verifyUserOwnsServer(req: Request, res: Response, next: Ne
     try {
         const { id } = req.params;
         let target = req.method === "POST" ? req.body : req.query;
-        const { pubkey } = target;
+        const { discordId } = target;
         const server = await prisma.server.findUnique({
             where: {
                 id: Number(id),
@@ -38,7 +65,7 @@ export async function verifyUserOwnsServer(req: Request, res: Response, next: Ne
         if (!server) {
             return res.status(404).json({ error: "Not found" });
         }
-        if (server.owner && server.owner.wallet === pubkey) {
+        if (server.owner && server.owner.discordId === discordId) {
             return next();
         } else {
             return res.status(401).json({ error: "Not found" });
