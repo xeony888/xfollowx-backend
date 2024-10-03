@@ -1,7 +1,7 @@
 import bs58 from "bs58";
 import { Connection, Keypair, PublicKey } from "@solana/web3.js";
 import nacl from "tweetnacl";
-import anchor, { AnchorProvider, Program, Wallet } from "@coral-xyz/anchor";
+import { AnchorProvider, BN, Program, Wallet } from "@coral-xyz/anchor";
 import idl from "./lens_payment.json";
 import dotenv from "dotenv";
 
@@ -27,9 +27,9 @@ export async function verifyServerPaidChain(id: number): Promise<boolean> {
     const [paymentAccountAddress] = PublicKey.findProgramAddressSync(
         [
             Buffer.from("payment"),
-            new anchor.BN(GROUP_ID).toArrayLike(Buffer, "le", 8),
-            new anchor.BN(id).toArrayLike(Buffer, "le", 8),
-            new anchor.BN(LEVEL).toArrayLike(Buffer, "le", 1)
+            new BN(GROUP_ID).toArrayLike(Buffer, "le", 8),
+            new BN(id).toArrayLike(Buffer, "le", 8),
+            new BN(LEVEL).toArrayLike(Buffer, "le", 1)
         ],
         program.programId
     );
