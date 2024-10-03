@@ -112,6 +112,7 @@ app.post("/server", verifyUser, async (req, res) => {
                         discordId,
                     }
                 },
+                ownerDiscord: discordId,
                 subscription: Subscription.UNDEFINED,
             }
         });
