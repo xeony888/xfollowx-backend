@@ -103,15 +103,18 @@ export async function verifyPayment(req: Request, res: Response, next: NextFunct
         }
         if (server.subscription === Subscription.CHAIN) {
             const status = await verifyServerPaidChain(server.id);
+            console.log(status);
             if (status) {
                 return next();
             } else {
+                console.log("here");
                 return res.status(401).json({ error: "You haven't paid!" });
             }
         } else if (server.subscription === Subscription.STRIPE) {
             // add stripe verification
             return next();
         } else {
+            console.log("here2");
             return res.status(401).json({ error: "You haven't paid" });
         }
     } catch (e) {

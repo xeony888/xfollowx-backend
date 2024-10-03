@@ -179,7 +179,7 @@ app.get("/bot/twitters", verifyBot, verifyPayment, async (req, res) => {
                     in: (memberIds as string).split(",")
                 }
             }
-        }); //
+        });
         return res.status(200).json(users);
     } catch (e) {
         console.error(e);
