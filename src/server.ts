@@ -132,7 +132,7 @@ app.post("/bot/link", verifyBot, async (req, res) => {
         if (!user) return res.status(404).send("Not found");
         const server = await prisma.server.update({
             where: {
-                id: serverId,
+                id: Number(serverId),
                 ownerDiscord: user.discordId,
             },
             data: {
