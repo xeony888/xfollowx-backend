@@ -38,6 +38,7 @@ export async function verifyServerPaidChain(id: number): Promise<boolean> {
         const until = paymentAccount.until.toNumber() * 1000;
         return until > Date.now();
     } catch (e) {
+        console.error(e);
         return false;
     }
 }
