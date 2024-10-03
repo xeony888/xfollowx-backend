@@ -30,7 +30,7 @@ enum Subscription {
 model Server {
   id                     Int          @id @default(autoincrement())
   owner                  User?
-  ownerDiscord           String?
+  ownerDiscord           String
   connectedDiscordServer String?
   subscription           Subscription
 }

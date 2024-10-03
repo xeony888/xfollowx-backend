@@ -14,7 +14,7 @@ CREATE TABLE "User" (
 -- CreateTable
 CREATE TABLE "Server" (
     "id" SERIAL NOT NULL,
-    "ownerDiscord" TEXT,
+    "ownerDiscord" TEXT NOT NULL,
     "connectedDiscordServer" TEXT,
     "subscription" "Subscription" NOT NULL,
 
