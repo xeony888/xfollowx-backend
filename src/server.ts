@@ -173,6 +173,7 @@ app.get("/bot/twitters", verifyBot, verifyPayment, async (req, res) => {
     try {
         // add guild field to req
         const { memberIds } = req.query;
+        console.log(memberIds);
         const users = await prisma.user.findMany({
             where: {
                 discordId: {

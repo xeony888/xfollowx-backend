@@ -106,13 +106,13 @@ export async function verifyPayment(req: Request, res: Response, next: NextFunct
             if (status) {
                 return next();
             } else {
-                return res.status(401).json({ error: "Unauthorized" });
+                return res.status(401).json({ error: "You haven't paid!" });
             }
         } else if (server.subscription === Subscription.STRIPE) {
             // add stripe verification
             return next();
         } else {
-            return res.status(401).json({ error: "Server not set up" });
+            return res.status(401).json({ error: "You haven't paid" });
         }
     } catch (e) {
         console.error(e);
