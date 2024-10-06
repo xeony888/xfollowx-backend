@@ -101,19 +101,13 @@ export async function verifyPayment(req: Request, res: Response, next: NextFunct
         if (!server) {
             return res.status(404).json({ error: "Not found" });
         }
-        if (server.subscription === Subscription.CHAIN) {
-            const status = await verifyServerPaidChain(server.id);
-            if (status) {
-                return next();
-            } else {
-                console.log("here");
-                return res.status(401).json({ error: "You haven't paid!" });
-            }
-        } else if (server.subscription === Subscription.STRIPE) {
-            // add stripe verification
+        let status = await verifyServerPaidChain(server.id);
+        if (!status) {
+            // status = check stripe...
+        }
+        if (status) {
             return next();
         } else {
-            console.log("here2");
             return res.status(401).json({ error: "You haven't paid" });
         }
     } catch (e) {
