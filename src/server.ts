@@ -208,7 +208,7 @@ app.get("/bot/:user/followed", verifyBot, async (req, res) => {
 });
 app.get("/bot/action/follow", verifyBot, async (req, res) => {
     try {
-        const { follower, followee, link } = req.query;
+        const { follower, followee, url } = req.query;
 
         if (!follower || !followee) {
             return res.status(400).json({ error: "Missing follower or followee parameter" });
@@ -258,7 +258,7 @@ app.get("/bot/action/follow", verifyBot, async (req, res) => {
             },
         });
 
-        return res.redirect(link as string);
+        return res.redirect(`https://x.com/${url}`);
     } catch (e) {
         console.error(e);
         return res.status(500).json({ error: "Internal server error" });
