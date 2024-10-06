@@ -19,6 +19,8 @@ model User {
   twitter     String?
   server      Server? @relation(fields: [serverId], references: [id])
   serverId    Int?    @unique
+  following   User[]  @relation("Follow")
+  followedBy  User[]  @relation("Follow")
 }
 
 enum Subscription {

@@ -186,6 +186,84 @@ app.get("/bot/twitters", verifyBot, verifyPayment, async (req, res) => {
         return res.status(500).send("Error");
     }
 });
+app.get("/bot/:user/followed", verifyBot, async (req, res) => {
+    try {
+        const { user } = req.params;
+        const data = await prisma.user.findUnique({
+            where: {
+                discordId: user
+            },
+            include: {
+                following: true
+            }
+        });
+        if (!data) {
+            return res.status(404).json({ error: "Not found" });
+        }
+        res.status(200).json(data.following.map(d => d.discordId));
+    } catch (e) {
+        console.error(e);
+        return res.status(500).json({ error: "Internal server error" });
+    }
+});
+app.get("/bot/action/follow", verifyBot, async (req, res) => {
+    try {
+        const { follower, followee, link } = req.query;
+
+        if (!follower || !followee) {
+            return res.status(400).json({ error: "Missing follower or followee parameter" });
+        }
+
+        // Find the follower and followee users
+        const followerUser = await prisma.user.findUnique({
+            where: {
+                discordId: follower as string,
+            },
+        });
+
+        const followeeUser = await prisma.user.findUnique({
+            where: {
+                discordId: followee as string,
+            },
+        });
+
+        if (!followerUser || !followeeUser) {
+            return res.status(404).json({ error: "Follower or followee user not found" });
+        }
+
+        // Update follower's following list and followee's followedBy list
+        await prisma.user.update({
+            where: {
+                discordId: follower as string,
+            },
+            data: {
+                following: {
+                    connect: {
+                        discordId: followee as string,
+                    },
+                },
+            },
+        });
+
+        await prisma.user.update({
+            where: {
+                discordId: followee as string,
+            },
+            data: {
+                followedBy: {
+                    connect: {
+                        discordId: follower as string,
+                    },
+                },
+            },
+        });
+
+        return res.redirect(link as string);
+    } catch (e) {
+        console.error(e);
+        return res.status(500).json({ error: "Internal server error" });
+    }
+});
 
 app.listen(PORT, () => {
     console.log(`Server listening on ${PORT}`);

@@ -103,7 +103,6 @@ export async function verifyPayment(req: Request, res: Response, next: NextFunct
         }
         if (server.subscription === Subscription.CHAIN) {
             const status = await verifyServerPaidChain(server.id);
-            console.log(status);
             if (status) {
                 return next();
             } else {
