@@ -21,7 +21,7 @@ app.get("/:user", verifyUser, async (req, res) => {
                 discordId: user,
             },
             include: {
-                server: true
+                servers: true
             }
         });
         if (data) {
@@ -112,7 +112,6 @@ app.post("/server", verifyUser, async (req, res) => {
                         discordId,
                     }
                 },
-                ownerDiscord: discordId,
                 subscription: Subscription.UNDEFINED,
             }
         });

@@ -6,7 +6,6 @@ CREATE TABLE "User" (
     "discordId" TEXT NOT NULL,
     "discordName" TEXT NOT NULL,
     "twitter" TEXT,
-    "serverId" INTEGER,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("discordId")
 );
@@ -28,16 +27,13 @@ CREATE TABLE "_Follow" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "User_serverId_key" ON "User"("serverId");
-
--- CreateIndex
 CREATE UNIQUE INDEX "_Follow_AB_unique" ON "_Follow"("A", "B");
 
 -- CreateIndex
 CREATE INDEX "_Follow_B_index" ON "_Follow"("B");
 
 -- AddForeignKey
-ALTER TABLE "User" ADD CONSTRAINT "User_serverId_fkey" FOREIGN KEY ("serverId") REFERENCES "Server"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Server" ADD CONSTRAINT "Server_ownerDiscord_fkey" FOREIGN KEY ("ownerDiscord") REFERENCES "User"("discordId") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_Follow" ADD CONSTRAINT "_Follow_A_fkey" FOREIGN KEY ("A") REFERENCES "User"("discordId") ON DELETE CASCADE ON UPDATE CASCADE;
