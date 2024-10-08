@@ -29,9 +29,10 @@ enum Subscription {
 }
 
 model Server {
-  id                     Int          @id @default(autoincrement())
-  owner                  User?        @relation(fields: [ownerDiscord], references: [discordId])
-  ownerDiscord           String
-  connectedDiscordServer String?
-  subscription           Subscription
+  id                         Int          @id @default(autoincrement())
+  owner                      User?        @relation(fields: [ownerDiscord], references: [discordId])
+  ownerDiscord               String
+  connectedDiscordServer     String?
+  connectedDiscordServerName String?
+  subscription               Subscription
 }

@@ -15,6 +15,7 @@ CREATE TABLE "Server" (
     "id" SERIAL NOT NULL,
     "ownerDiscord" TEXT NOT NULL,
     "connectedDiscordServer" TEXT,
+    "connectedDiscordServerName" TEXT,
     "subscription" "Subscription" NOT NULL,
 
     CONSTRAINT "Server_pkey" PRIMARY KEY ("id")

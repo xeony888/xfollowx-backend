@@ -123,7 +123,7 @@ app.post("/server", verifyUser, async (req, res) => {
 });
 app.post("/bot/link", verifyBot, async (req, res) => {
     try {
-        const { guildId, userId, serverId } = req.body;
+        const { guildId, userId, serverId, guildName } = req.body;
         const user = await prisma.user.findUnique({
             where: {
                 discordId: userId,
@@ -137,6 +137,7 @@ app.post("/bot/link", verifyBot, async (req, res) => {
             },
             data: {
                 connectedDiscordServer: guildId,
+                connectedDiscordServerName: guildName
             }
         });
         if (server) {
