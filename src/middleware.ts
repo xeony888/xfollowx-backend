@@ -2,7 +2,6 @@ import { Request, Response, NextFunction } from 'express';
 import { assertIsDiscordBot, verifyMessage, verifyServerPaidChain } from './utils';
 import { PublicKey } from '@solana/web3.js';
 import { prisma } from './server';
-import { Subscription } from '@prisma/client';
 
 
 export async function verifyUser(req: Request, res: Response, next: NextFunction) {
@@ -56,7 +55,7 @@ export async function verifyUserOwnsServer(req: Request, res: Response, next: Ne
         const { discordId } = target;
         const server = await prisma.server.findUnique({
             where: {
-                id: Number(id),
+                id,
             },
             include: {
                 owner: true
@@ -101,15 +100,15 @@ export async function verifyPayment(req: Request, res: Response, next: NextFunct
         if (!server) {
             return res.status(404).json({ error: "Not found" });
         }
-        let status = await verifyServerPaidChain(server.id);
-        if (!status) {
-            // status = check stripe...
-        }
-        if (status) {
-            return next();
-        } else {
-            return res.status(401).json({ error: "You haven't paid" });
-        }
+        // let status = await verifyServerPaidChain(server.id);
+        // if (!status) {
+        //     // status = check stripe...
+        // }
+        // if (status) {
+        //     return next();
+        // } else {
+        //     return res.status(401).json({ error: "You haven't paid" });
+        // }
     } catch (e) {
         console.error(e);
         return res.status(500).json({ error: "Internal server error" });
