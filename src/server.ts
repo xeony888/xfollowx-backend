@@ -3,7 +3,7 @@ import cors from "cors";
 import { verifyBot, verifyPayment, verifySignature, verifyUser, verifyUserOwnsServer } from "./middleware";
 import { PrismaClient, Subscription } from "@prisma/client";
 import dotenv from "dotenv";
-
+import axios from "axios";
 dotenv.config();
 const PORT = process.env.PORT || 3001;
 const app = express();
@@ -11,8 +11,67 @@ app.use(cors());
 app.use(express.json());
 
 export const prisma = new PrismaClient();
+let SHARED_TOKEN: string = "";
+async function cleanupAndExit() {
+    await axios.delete(`https://api.hel.io/v1/webhook/paylink/transaction/${process.env.HELIO_PAY_LINK_ID}?apiKey=${process.env.HELIO_PUBLIC_API}`, {
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${process.env.HELIO_SECRET_API}`,
+            'cache-control': 'no-cache',
+        },
+    });
+    process.exit(0);
+}
+async function main() {
+    const data = {
+        streamId: '636a74162e72d4ad24ac9ce9',
+        targetUrl: `${process.env.BACKEND_URL}/helio`, // change this
+        events: ['STARTED', 'ENDED'],
+    };
+    const response = await axios.post(`https://api.hel.io/v1/webhook/stream/transaction?apiKey=${process.env.HELIO_PUBLIC_API}`, data, {
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${process.env.HELIO_SECRET_API}`,
+            'cache-control': 'no-cache',
+        },
+    });
+    const { sharedToken } = response.data;
+    SHARED_TOKEN = sharedToken;
+    process.on('uncaughtException', (err) => {
+        console.error('Uncaught Exception:', err);
+        cleanupAndExit();
+    });
 
+    // Handle unhandled promise rejections
+    process.on('unhandledRejection', (reason, promise) => {
+        console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+        cleanupAndExit();
+    });
 
+    // Handle termination signals (like Ctrl+C)
+    process.on('SIGTERM', () => {
+        console.log('Received SIGTERM. Graceful shutdown initiated...');
+        cleanupAndExit();
+    });
+
+    process.on('SIGINT', () => {
+        console.log('Received SIGINT. Graceful shutdown initiated...');
+        cleanupAndExit();
+    });
+}
+main();
+app.post("/helio", async (req, res) => {
+    try {
+        console.log(JSON.stringify(req.body));
+        const authHeader = req.headers.authorization;
+        console.log({ authHeader });
+    } catch (e) {
+        console.error(e);
+        return res.status(500).json({ error: "Internal server error" });
+    }
+});
 app.get("/:user", verifyUser, async (req, res) => {
     try {
         const { user } = req.params;
@@ -90,7 +149,7 @@ app.post("/server/:id/set/", verifyUser, verifyUserOwnsServer, async (req, res) 
         let subscription = type === "chain" ? Subscription.CHAIN : Subscription.STRIPE;
         await prisma.server.update({
             where: {
-                id: Number(id),
+                id,
             },
             data: {
                 subscription,
@@ -132,7 +191,7 @@ app.post("/bot/link", verifyBot, async (req, res) => {
         if (!user) return res.status(404).send("Not found");
         const server = await prisma.server.update({
             where: {
-                id: Number(serverId),
+                id: serverId,
                 ownerDiscord: user.discordId,
             },
             data: {
