@@ -10,7 +10,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 export const prisma = new PrismaClient();
-
+let SHARED_TOKEN: string = "";
+let WEBHOOK_ID: string = "";
 async function webhook() {
     const options = {
         method: 'POST',
@@ -30,6 +31,8 @@ async function webhook() {
     try {
         const { data: { id, sharedToken } } = await axios.request(options);
         console.log({ sharedToken, id });
+        SHARED_TOKEN = sharedToken;
+        WEBHOOK_ID = id;
     } catch (error) {
         console.error(error);
     }
@@ -40,7 +43,7 @@ app.post("/helio", async (req, res) => {
         console.log(JSON.stringify(req.body));
         const authHeader = req.headers.authorization;
         console.log({ authHeader });
-        console.log({ shared: process.env.SHARED_TOKEN });
+        console.log({ SHARED_TOKEN });
     } catch (e) {
         console.error(e);
         return res.status(500).json({ error: "Internal server error" });
