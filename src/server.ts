@@ -22,7 +22,7 @@ async function webhook() {
             Authorization: `Bearer ${process.env.HELIO_SECRET_API}` // << update
         },
         data: {
-            streamId: '6706c384752ab6b7c0bc8745',  // << update
+            streamId: '6706b328fac8f73e96d0d95a',  // << update
             targetUrl: 'https://xfollowx-backend-production.up.railway.app/helio', // << update
             events: ['STARTED', 'ENDED']
         }
@@ -40,8 +40,12 @@ async function webhook() {
 webhook();
 app.post("/helio", async (req, res) => {
     try {
-        console.log(JSON.stringify(req.body));
+        console.log(JSON.stringify(req));
         const authHeader = req.headers.authorization;
+        if (authHeader !== `Bearer ${SHARED_TOKEN}`) {
+            return res.status(401).json({ error: "Unauthorized" });
+        }
+
         console.log({ authHeader });
         console.log({ SHARED_TOKEN });
     } catch (e) {
