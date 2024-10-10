@@ -9,7 +9,9 @@ const PORT = process.env.PORT || 3001;
 const app = express();
 app.use(cors());
 app.use(express.json());
-
+axios.defaults.validateStatus = (status: number) => {
+    return true;
+};
 export const prisma = new PrismaClient();
 let SHARED_TOKEN: string = "";
 async function cleanupAndExit() {
@@ -24,27 +26,33 @@ async function cleanupAndExit() {
     process.exit(0);
 }
 async function main() {
-    const data = {
-        streamId: '636a74162e72d4ad24ac9ce9',
-        targetUrl: `${process.env.BACKEND_URL}/helio`, // change this
-        events: ['STARTED', 'ENDED'],
-    };
-    const response = await axios.post(`https://api.hel.io/v1/webhook/stream/transaction?apiKey=${process.env.HELIO_PUBLIC_API}`, data, {
+    const options = {
+        method: 'POST',
+        url: 'https://api.hel.io/v1/webhook/stream/transaction',
+        params: { apiKey: process.env.HELIO_PUBLIC_API }, // << update
         headers: {
-            'Accept': 'application/json',
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${process.env.HELIO_SECRET_API}`,
-            'cache-control': 'no-cache',
+            Authorization: `Bearer ${process.env.HELIO_SECRET_API}` // << update
         },
-    });
-    const { sharedToken } = response.data;
-    SHARED_TOKEN = sharedToken;
+        data: {
+            streamId: '6706c384752ab6b7c0bc8745',  // << update
+            targetUrl: 'https://xfollowx-backend-production.up.railway.app/helio', // << update
+            events: ['STARTED', 'ENDED']
+        }
+    };
+
+    try {
+        const { data } = await axios.request(options);
+        console.log(data);
+    } catch (error) {
+        console.error(error);
+    }
     process.on('uncaughtException', (err) => {
         console.error('Uncaught Exception:', err);
         cleanupAndExit();
     });
 
-    // Handle unhandled promise rejections
+    // // Handle unhandled promise rejections
     process.on('unhandledRejection', (reason, promise) => {
         console.error('Unhandled Rejection at:', promise, 'reason:', reason);
         cleanupAndExit();
