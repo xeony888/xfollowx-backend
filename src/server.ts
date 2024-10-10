@@ -9,23 +9,9 @@ const PORT = process.env.PORT || 3001;
 const app = express();
 app.use(cors());
 app.use(express.json());
-axios.defaults.validateStatus = (status: number) => {
-    return true;
-};
 export const prisma = new PrismaClient();
-let SHARED_TOKEN: string = "";
-async function cleanupAndExit() {
-    await axios.delete(`https://api.hel.io/v1/webhook/paylink/transaction/${process.env.HELIO_PAY_LINK_ID}?apiKey=${process.env.HELIO_PUBLIC_API}`, {
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${process.env.HELIO_SECRET_API}`,
-            'cache-control': 'no-cache',
-        },
-    });
-    process.exit(0);
-}
-async function main() {
+
+async function webhook() {
     const options = {
         method: 'POST',
         url: 'https://api.hel.io/v1/webhook/stream/transaction',
@@ -42,39 +28,19 @@ async function main() {
     };
 
     try {
-        const { data } = await axios.request(options);
-        console.log(data);
+        const { data: { id, sharedToken } } = await axios.request(options);
+        console.log({ sharedToken, id });
     } catch (error) {
         console.error(error);
     }
-    process.on('uncaughtException', (err) => {
-        console.error('Uncaught Exception:', err);
-        cleanupAndExit();
-    });
-
-    // // Handle unhandled promise rejections
-    process.on('unhandledRejection', (reason, promise) => {
-        console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-        cleanupAndExit();
-    });
-
-    // Handle termination signals (like Ctrl+C)
-    process.on('SIGTERM', () => {
-        console.log('Received SIGTERM. Graceful shutdown initiated...');
-        cleanupAndExit();
-    });
-
-    process.on('SIGINT', () => {
-        console.log('Received SIGINT. Graceful shutdown initiated...');
-        cleanupAndExit();
-    });
 }
-main();
+webhook();
 app.post("/helio", async (req, res) => {
     try {
         console.log(JSON.stringify(req.body));
         const authHeader = req.headers.authorization;
         console.log({ authHeader });
+        console.log({ shared: process.env.SHARED_TOKEN });
     } catch (e) {
         console.error(e);
         return res.status(500).json({ error: "Internal server error" });
