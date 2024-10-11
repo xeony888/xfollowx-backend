@@ -45,8 +45,20 @@ app.post("/helio", async (req, res) => {
             console.log("Unauthorized");
             return res.status(401).json({ error: "Unauthorized" });
         }
-        const { event, transaction: { meta: { senderPK, customerDetails, productDetails } } } = req.body;
-        console.log({ event, senderPK, customerDetails, productDetails });
+        const { event, transaction: { meta: { senderPK, customerDetails: { email, discordUser }, productDetails } } } = req.body;
+        if (productDetails.name === "Server ID") {
+            const serverId = productDetails.value;
+            if (event === "STARTED") {
+                // authorize a subscription
+            } else if (event === "ENDED") {
+                // deauthorize a subscription
+            } else {
+                return res.status(404).json({ error: "Invalid event type" });
+            }
+        } else {
+            return res.status(401).json({ error: "Invalid product details" });
+        }
+        console.log({ event, senderPK, email, discordUser, productDetails });
     } catch (e) {
         console.error(e);
         return res.status(500).json({ error: "Internal server error" });
