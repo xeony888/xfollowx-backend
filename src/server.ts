@@ -41,15 +41,14 @@ webhook();
 app.post("/helio", async (req, res) => {
     try {
         console.log(req.body);
-        console.log(req.headers);
-        console.log(req.params);
+
         const authHeader = req.headers.authorization;
         if (authHeader !== `Bearer ${SHARED_TOKEN}`) {
+            console.log("Unauthorized");
             return res.status(401).json({ error: "Unauthorized" });
         }
-
-        console.log({ authHeader });
-        console.log({ SHARED_TOKEN });
+        const { event, meta: { senderPK, customerDetails, productDetails } } = req.body;
+        console.log({ event, senderPK, customerDetails, productDetails });
     } catch (e) {
         console.error(e);
         return res.status(500).json({ error: "Internal server error" });
@@ -125,7 +124,7 @@ app.post("/:user/twitter/remove", verifyUser, async (req, res) => {
         return res.status(500).send("Error");
     }
 });
-app.post("/server/:id/set/", verifyUser, verifyUserOwnsServer, async (req, res) => {
+app.post("/server/:id/set", verifyUser, verifyUserOwnsServer, async (req, res) => {
     try {
         const { type } = req.body;
         const { id } = req.params;
