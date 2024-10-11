@@ -40,8 +40,6 @@ async function webhook() {
 webhook();
 app.post("/helio", async (req, res) => {
     try {
-        console.log(req.body);
-
         const authHeader = req.headers.authorization;
         if (authHeader !== `Bearer ${SHARED_TOKEN}`) {
             console.log("Unauthorized");
