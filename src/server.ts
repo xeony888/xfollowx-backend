@@ -42,7 +42,7 @@ app.post("/helio", async (req, res) => {
     try {
         const authHeader = req.headers.authorization;
         if (authHeader !== `Bearer ${SHARED_TOKEN}`) {
-            console.log("Unauthorized");
+            console.log("Unauthorized: ", req.body.event);
             return res.status(401).json({ error: "Unauthorized" });
         }
         const { event, transaction: { meta: { senderPK, customerDetails: { email, discordUser }, productDetails } } } = req.body;
