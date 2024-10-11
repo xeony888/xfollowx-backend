@@ -47,7 +47,7 @@ app.post("/helio", async (req, res) => {
             console.log("Unauthorized");
             return res.status(401).json({ error: "Unauthorized" });
         }
-        const { event, meta: { senderPK, customerDetails, productDetails } } = req.body;
+        const { event, transaction: { meta: { senderPK, customerDetails, productDetails } } } = req.body;
         console.log({ event, senderPK, customerDetails, productDetails });
     } catch (e) {
         console.error(e);
