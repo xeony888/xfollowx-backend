@@ -22,7 +22,7 @@ async function webhook() {
             Authorization: `Bearer ${process.env.HELIO_SECRET_API}` // << update
         },
         data: {
-            streamId: '6706b328fac8f73e96d0d95a',  // << update
+            streamId: '670a6f12cc50d45bfb6e101f',  // << update
             targetUrl: 'https://xfollowx-backend-production.up.railway.app/helio', // << update
             events: ['STARTED', 'ENDED']
         }
