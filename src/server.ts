@@ -37,7 +37,7 @@ async function webhook() {
         console.error(error);
     }
 }
-webhook();
+if (!process.env.RPC_URL.includes("devnet")) webhook();
 app.post("/helio", async (req, res) => {
     try {
         const authHeader = req.headers.authorization;
@@ -45,7 +45,7 @@ app.post("/helio", async (req, res) => {
             console.log("Unauthorized: ", req.body.event);
             return res.status(401).json({ error: "Unauthorized" });
         }
-        const { event, transaction: { meta: { senderPK, customerDetails: { email, discordUser }, productDetails } } } = req.body;
+        const { event, transaction: { meta: { customerDetails: { discordUser }, productDetails } } } = req.body;
         if (productDetails.name === "Server ID") {
             const serverId = productDetails.value;
             const server = await prisma.server.findUnique({
@@ -186,6 +186,23 @@ app.post("/:user/twitter/remove", verifyUser, async (req, res) => {
 //         return res.status(500).json({ error: "Internal server error" });
 //     }
 // });
+app.post("/server/:id", verifyUser, verifyUserOwnsServer, async (req, res) => {
+    try {
+        const { id } = req.params;
+        // console.log({ id });
+        const server = await prisma.server.findUnique({
+            where: { id }
+        });
+        if (server) {
+            return res.status(200).json(server);
+        } else {
+            return res.status(404).json({ error: "Not found" });
+        }
+    } catch (e) {
+        console.error(e);
+        return res.status(500).json({ error: "Internal server error" });
+    }
+});
 app.post("/server", verifyUser, async (req, res) => {
     try {
         const { discordId } = req.body;
