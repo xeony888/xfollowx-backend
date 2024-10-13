@@ -29,7 +29,7 @@ async function main() {
         url: 'https://api.hel.io/v1/webhook/stream/transaction',
         params: {
             apiKey: env.HELIO_PUBLIC_API,
-            streamId: "6706b328fac8f73e96d0d95a",
+            streamId: "670a6f12cc50d45bfb6e101f",
         }, // << update
         headers: {
             'Content-Type': 'application/json',

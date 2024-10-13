@@ -22,17 +22,11 @@ model User {
   followedBy  User[]   @relation("Follow")
 }
 
-enum Subscription {
-  CHAIN
-  STRIPE
-  UNDEFINED
-}
-
 model Server {
-  id                         String       @id @default(uuid())
-  owner                      User?        @relation(fields: [ownerDiscord], references: [discordId])
+  id                         String  @id @default(uuid())
+  owner                      User?   @relation(fields: [ownerDiscord], references: [discordId])
   ownerDiscord               String
   connectedDiscordServer     String?
   connectedDiscordServerName String?
-  subscription               Subscription
+  subscribed                 Boolean
 }

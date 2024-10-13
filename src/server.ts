@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import { verifyBot, verifyPayment, verifySignature, verifyUser, verifyUserOwnsServer } from "./middleware";
-import { PrismaClient, Subscription } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import dotenv from "dotenv";
 import axios from "axios";
 dotenv.config();
@@ -48,13 +48,45 @@ app.post("/helio", async (req, res) => {
         const { event, transaction: { meta: { senderPK, customerDetails: { email, discordUser }, productDetails } } } = req.body;
         if (productDetails.name === "Server ID") {
             const serverId = productDetails.value;
+            const server = await prisma.server.findUnique({
+                where: {
+                    id: serverId
+                },
+                include: {
+                    owner: true
+                }
+            });
+            if (!server) {
+                return res.status(404).json({ error: "Not found" });
+            }
+            if (server.owner.discordName !== discordUser.username) {
+                return res.status(401).json({ error: "Unauthorized" });
+            }
+            let updatedServer: any;
             if (event === "STARTED") {
+                updatedServer = await prisma.server.update({
+                    where: {
+                        id: serverId,
+                    },
+                    data: {
+                        subscribed: true,
+                    }
+                });
                 // authorize a subscription
             } else if (event === "ENDED") {
+                updatedServer = await prisma.server.update({
+                    where: {
+                        id: serverId
+                    },
+                    data: {
+                        subscribed: false
+                    }
+                });
                 // deauthorize a subscription
             } else {
                 return res.status(404).json({ error: "Invalid event type" });
             }
+            return res.status(200).send("Success");
         } else {
             return res.status(401).json({ error: "Invalid product details" });
         }
@@ -134,25 +166,25 @@ app.post("/:user/twitter/remove", verifyUser, async (req, res) => {
         return res.status(500).send("Error");
     }
 });
-app.post("/server/:id/set", verifyUser, verifyUserOwnsServer, async (req, res) => {
-    try {
-        const { type } = req.body;
-        const { id } = req.params;
-        let subscription = type === "chain" ? Subscription.CHAIN : Subscription.STRIPE;
-        await prisma.server.update({
-            where: {
-                id,
-            },
-            data: {
-                subscription,
-            }
-        });
-        return res.status(200).send("Success");
-    } catch (e) {
-        console.error(e);
-        return res.status(500).json({ error: "Internal server error" });
-    }
-});
+// app.post("/server/:id/set", verifyUser, verifyUserOwnsServer, async (req, res) => {
+//     try {
+//         const { type } = req.body;
+//         const { id } = req.params;
+//         let subscription = type === "chain" ? Subscription.CHAIN : Subscription.STRIPE;
+//         await prisma.server.update({
+//             where: {
+//                 id,
+//             },
+//             data: {
+//                 subscription,
+//             }
+//         });
+//         return res.status(200).send("Success");
+//     } catch (e) {
+//         console.error(e);
+//         return res.status(500).json({ error: "Internal server error" });
+//     }
+// });
 app.post("/server", verifyUser, async (req, res) => {
     try {
         const { discordId } = req.body;
@@ -163,7 +195,7 @@ app.post("/server", verifyUser, async (req, res) => {
                         discordId,
                     }
                 },
-                subscription: Subscription.UNDEFINED,
+                subscribed: false,
             }
         });
         return res.status(200).json(server);

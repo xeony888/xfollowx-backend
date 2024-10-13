@@ -1,6 +1,3 @@
--- CreateEnum
-CREATE TYPE "Subscription" AS ENUM ('CHAIN', 'STRIPE', 'UNDEFINED');
-
 -- CreateTable
 CREATE TABLE "User" (
     "discordId" TEXT NOT NULL,
@@ -16,7 +13,7 @@ CREATE TABLE "Server" (
     "ownerDiscord" TEXT NOT NULL,
     "connectedDiscordServer" TEXT,
     "connectedDiscordServerName" TEXT,
-    "subscription" "Subscription" NOT NULL,
+    "subscribed" BOOLEAN NOT NULL,
 
     CONSTRAINT "Server_pkey" PRIMARY KEY ("id")
 );
