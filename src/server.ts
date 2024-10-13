@@ -64,6 +64,7 @@ app.post("/helio", async (req, res) => {
             }
             let updatedServer: any;
             if (event === "STARTED") {
+                console.log(`Subscribed ${serverId}`);
                 updatedServer = await prisma.server.update({
                     where: {
                         id: serverId,
@@ -74,6 +75,7 @@ app.post("/helio", async (req, res) => {
                 });
                 // authorize a subscription
             } else if (event === "ENDED") {
+                console.log(`Ended ${serverId}`);
                 updatedServer = await prisma.server.update({
                     where: {
                         id: serverId
@@ -90,7 +92,6 @@ app.post("/helio", async (req, res) => {
         } else {
             return res.status(401).json({ error: "Invalid product details" });
         }
-        console.log({ event, senderPK, email, discordUser, productDetails });
     } catch (e) {
         console.error(e);
         return res.status(500).json({ error: "Internal server error" });
