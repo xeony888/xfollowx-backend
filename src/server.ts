@@ -13,6 +13,7 @@ export const prisma = new PrismaClient();
 let SHARED_TOKEN: string = "";
 let WEBHOOK_ID: string = "";
 async function webhook() {
+    console.log("created webhook");
     const options = {
         method: 'POST',
         url: 'https://api.hel.io/v1/webhook/stream/transaction',
@@ -37,9 +38,10 @@ async function webhook() {
         console.error(error);
     }
 }
-if (!process.env.RPC_URL.includes("devnet")) webhook();
+if (process.env.ENVIRONMENT !== "devnet") webhook();
 app.post("/helio", async (req, res) => {
     try {
+        console.log("called");
         const authHeader = req.headers.authorization;
         if (authHeader !== `Bearer ${SHARED_TOKEN}`) {
             console.log("Unauthorized: ", req.body.event);
