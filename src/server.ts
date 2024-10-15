@@ -39,6 +39,107 @@ async function webhook() {
     }
 }
 if (process.env.ENVIRONMENT !== "devnet") webhook();
+app.get("/auth/twitter", async (req, res) => {
+    try {
+        const { state, code } = req.query;
+        console.log({ state, code });
+        const TWITTER_OAUTH_CLIENT_ID = process.env.TWITTER_CLIENT;
+        const TWITTER_OAUTH_CLIENT_SECRET = process.env.TWITTER_CLIENT_SECRET;
+
+        // the url where we get the twitter access token from
+        const TWITTER_OAUTH_TOKEN_URL = "https://api.twitter.com/2/oauth2/token";
+
+        // we need to encrypt our twitter client id and secret here in base 64 (stated in twitter documentation)
+        const BasicAuthToken = Buffer.from(`${TWITTER_OAUTH_CLIENT_ID}:${TWITTER_OAUTH_CLIENT_SECRET}`, "utf8").toString(
+            "base64"
+        );
+
+        // filling up the query parameters needed to request for getting the token
+        const twitterOauthTokenParams = {
+            client_id: TWITTER_OAUTH_CLIENT_ID,
+            code_verifier: "8KxxO-RPl0bLSxX5AWwgdiFbMnry_VOKzFeIlVA7NoA",
+            redirect_uri: process.env.TWITTER_REDIRECT_URI,
+            grant_type: "authorization_code",
+        };
+        const response = await axios.post(
+            TWITTER_OAUTH_TOKEN_URL,
+            new URLSearchParams({ ...twitterOauthTokenParams, code: code as string }).toString(),
+            {
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    Authorization: `Basic ${BasicAuthToken}`,
+                },
+            }
+        );
+        const accessToken = response.data.access_token;
+        const userResponse = await axios.get("https://api.twitter.com/2/users/me", {
+            headers: {
+                "Content-type": "application/json",
+                Authorization: `Bearer ${accessToken}`,
+            },
+        });
+        const user = userResponse.data.data;
+        console.log(user);
+        if (user) {
+            await prisma.user.update({
+                where: {
+                    discordId: state as string
+                },
+                data: {
+                    twitter: `@${user.username}`
+                }
+            });
+            return res.redirect(process.env.REDIRECT_URL);
+        } else {
+            return res.status(404).json({ error: "User not found" });
+        }
+    } catch (e) {
+        console.error(e);
+        return res.status(500).json({ error: "Internal server error" });
+    }
+});
+app.get("/auth/discord", async (req, res) => {
+    try {
+        const CLIENT_ID = process.env.DISCORD_CLIENT_ID;
+        const code = req.query.code;
+        const REDIRECT_URL = `${process.env.MINI_REDIRECT_URL}/auth/discord`;
+        const formData = new URLSearchParams({
+            client_id: CLIENT_ID,
+            client_secret: process.env.DISCORD_CLIENT_SECRET,
+            grant_type: "authorization_code",
+            code: code.toString(),
+            redirect_uri: REDIRECT_URL,
+        });
+        const response = await fetch('https://discord.com/api/v10/oauth2/token', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        }); //
+        const json = await response.json();
+        //console.log(json);
+        const access = json.access_token;
+        const refresh = json.refresh_token;
+        const userInfo = await axios.get("https://discord.com/api/v10/users/@me",
+            {
+                headers: {
+                    "Authorization": `Bearer ${access}`
+                }
+            }
+        );
+        const redirect = `${process.env.REDIRECT_URL}?username=${userInfo.data.username}&id=${userInfo.data.id}&access=${access}&refresh=${refresh})}`;
+        console.log(redirect);
+        return res.redirect(redirect);
+        // sessionStorage.setItem("discord", JSON.stringify(userInfo.data));
+        // sessionStorage.setItem("discord_access_token", access);
+        // sessionStorage.setItem("discord_refresh_token", refresh);
+        // window.location.href = "/";
+    } catch (e) {
+        console.error(e);
+        return res.status(500).json({ error: "Internal server error" });
+    }
+});
 app.post("/helio", async (req, res) => {
     try {
         console.log("called");
