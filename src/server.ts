@@ -57,9 +57,11 @@ app.post("/helio", async (req, res) => {
                 }
             });
             if (!server) {
+                console.log(`Server not found: ${serverId}`);
                 return res.status(404).json({ error: "Not found" });
             }
             if (server.owner.discordName !== discordUser.username) {
+                console.log(`Incorrect owner: ${server.owner.discordName, discordUser.username}`);
                 return res.status(401).json({ error: "Unauthorized" });
             }
             let updatedServer: any;
