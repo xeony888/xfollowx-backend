@@ -100,15 +100,11 @@ export async function verifyPayment(req: Request, res: Response, next: NextFunct
         if (!server) {
             return res.status(404).json({ error: "Not found" });
         }
-        // let status = await verifyServerPaidChain(server.id);
-        // if (!status) {
-        //     // status = check stripe...
-        // }
-        // if (status) {
-        //     return next();
-        // } else {
-        //     return res.status(401).json({ error: "You haven't paid" });
-        // }
+        if (server.subscribed) {
+            return next();
+        } else {
+            return res.status(401).json({ error: "You haven't paid" });
+        }
     } catch (e) {
         console.error(e);
         return res.status(500).json({ error: "Internal server error" });
