@@ -89,6 +89,7 @@ app.get("/auth/twitter", async (req, res) => {
                     twitter: `@${user.username}`
                 }
             });
+            console.log(`Redirecting to ${process.env.REDIRECT_URL}`);
             return res.redirect(process.env.REDIRECT_URL);
         } else {
             return res.status(404).json({ error: "User not found" });
