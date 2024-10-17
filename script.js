@@ -26,10 +26,10 @@ async function main() {
     console.log(env);
     const options = {
         method: 'GET',
-        url: 'https://api.hel.io/v1/webhook/stream/transaction',
+        url: 'https://api.hel.io/v1/webhook/paylink/transaction',
         params: {
             apiKey: env.HELIO_PUBLIC_API,
-            streamId: "670a6f12cc50d45bfb6e101f",
+            paylinkId: "67110db71b2d8daa30aba1f5",
         }, // << update
         headers: {
             'Content-Type': 'application/json',
@@ -41,7 +41,7 @@ async function main() {
     for (const hook of response.data) {
         const options = {
             method: 'DELETE',
-            url: `https://api.hel.io/v1/webhook/stream/transaction/${hook.id}`,
+            url: `https://api.hel.io/v1/webhook/paylink/transaction/${hook.id}`,
             params: {
                 apiKey: env.HELIO_PUBLIC_API,
             }, // << update

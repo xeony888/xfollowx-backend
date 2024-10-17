@@ -14,19 +14,18 @@ datasource db {
 }
 
 model User {
-  discordId   String   @id
+  discordId   String  @id
   discordName String
   twitter     String?
-  servers     Server[]
-  following   User[]   @relation("Follow")
-  followedBy  User[]   @relation("Follow")
+  servers     Guild[]
+  days        Int     @default(0)
+  following   User[]  @relation("Follow")
+  followedBy  User[]  @relation("Follow")
 }
 
-model Server {
-  id                         String  @id @default(uuid())
-  owner                      User?   @relation(fields: [ownerDiscord], references: [discordId])
-  ownerDiscord               String
-  connectedDiscordServer     String?
-  connectedDiscordServerName String?
-  subscribed                 Boolean
+model Guild {
+  guildId       String  @id
+  guildName     String
+  User          User?   @relation(fields: [userDiscordId], references: [discordId])
+  userDiscordId String?
 }

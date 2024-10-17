@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { verifyBot, verifyPayment, verifySignature, verifyUser, verifyUserOwnsServer } from "./middleware";
+import { verifyBot, verifyPayment, verifyUser } from "./middleware";
 import { PrismaClient } from "@prisma/client";
 import dotenv from "dotenv";
 import axios from "axios";
@@ -12,20 +12,21 @@ app.use(express.json());
 export const prisma = new PrismaClient();
 let SHARED_TOKEN: string = "";
 let WEBHOOK_ID: string = "";
+// https://app.hel.io/pay/67110db71b2d8daa30aba1f5
 async function webhook() {
     console.log("created webhook");
     const options = {
         method: 'POST',
-        url: 'https://api.hel.io/v1/webhook/stream/transaction',
+        url: 'https://api.hel.io/v1/webhook/paylink/transaction',
         params: { apiKey: process.env.HELIO_PUBLIC_API }, // << update
         headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${process.env.HELIO_SECRET_API}` // << update
         },
         data: {
-            streamId: '670a6f12cc50d45bfb6e101f',  // << update
+            paylinkId: '67110db71b2d8daa30aba1f5',  // << update
             targetUrl: 'https://xfollowx-backend-production.up.railway.app/helio', // << update
-            events: ['STARTED', 'ENDED']
+            events: ["CREATED"]
         }
     };
 
@@ -150,54 +151,8 @@ app.post("/helio", async (req, res) => {
             return res.status(401).json({ error: "Unauthorized" });
         }
         const { event, transaction: { meta: { customerDetails: { discordUser }, productDetails } } } = req.body;
-        if (productDetails.name === "Server ID") {
-            const serverId = productDetails.value;
-            const server = await prisma.server.findUnique({
-                where: {
-                    id: serverId
-                },
-                include: {
-                    owner: true
-                }
-            });
-            if (!server) {
-                console.log(`Server not found: ${serverId}`);
-                return res.status(404).json({ error: "Not found" });
-            }
-            if (server.owner.discordName !== discordUser.username) {
-                console.log(`Incorrect owner: ${server.owner.discordName}, ${discordUser.username}`);
-                return res.status(401).json({ error: "Unauthorized" });
-            }
-            let updatedServer: any;
-            if (event === "STARTED") {
-                console.log(`Subscribed ${serverId}`);
-                updatedServer = await prisma.server.update({
-                    where: {
-                        id: serverId,
-                    },
-                    data: {
-                        subscribed: true,
-                    }
-                });
-                // authorize a subscription
-            } else if (event === "ENDED") {
-                console.log(`Ended ${serverId}`);
-                updatedServer = await prisma.server.update({
-                    where: {
-                        id: serverId
-                    },
-                    data: {
-                        subscribed: false
-                    }
-                });
-                // deauthorize a subscription
-            } else {
-                return res.status(404).json({ error: "Invalid event type" });
-            }
-            return res.status(200).send("Success");
-        } else {
-            return res.status(401).json({ error: "Invalid product details" });
-        }
+        console.log(req.body);
+        return res.status(200).send("Success");
     } catch (e) {
         console.error(e);
         return res.status(500).json({ error: "Internal server error" });
@@ -292,66 +247,63 @@ app.post("/:user/twitter/remove", verifyUser, async (req, res) => {
 //         return res.status(500).json({ error: "Internal server error" });
 //     }
 // });
-app.post("/server/:id", verifyUser, verifyUserOwnsServer, async (req, res) => {
-    try {
-        const { id } = req.params;
-        // console.log({ id });
-        const server = await prisma.server.findUnique({
-            where: { id }
-        });
-        if (server) {
-            return res.status(200).json(server);
-        } else {
-            return res.status(404).json({ error: "Not found" });
-        }
-    } catch (e) {
-        console.error(e);
-        return res.status(500).json({ error: "Internal server error" });
-    }
-});
-app.post("/server", verifyUser, async (req, res) => {
-    try {
-        const { discordId } = req.body;
-        const server = await prisma.server.create({
-            data: {
-                owner: {
-                    connect: {
-                        discordId,
-                    }
-                },
-                subscribed: false,
-            }
-        });
-        return res.status(200).json(server);
-    } catch (e) {
-        console.error(e);
-        return res.status(500).send("Error");
-    }
-});
+// app.post("/server/:id", verifyUser, verifyUserOwnsServer, async (req, res) => {
+//     try {
+//         const { id } = req.params;
+//         // console.log({ id });
+//         const server = await prisma.server.findUnique({
+//             where: { id }
+//         });
+//         if (server) {
+//             return res.status(200).json(server);
+//         } else {
+//             return res.status(404).json({ error: "Not found" });
+//         }
+//     } catch (e) {
+//         console.error(e);
+//         return res.status(500).json({ error: "Internal server error" });
+//     }
+// });
+// app.post("/server", verifyUser, async (req, res) => {
+//     try {
+//         const { discordId } = req.body;
+//         const server = await prisma.server.create({
+//             data: {
+//                 owner: {
+//                     connect: {
+//                         discordId,
+//                     }
+//                 },
+//                 subscribed: false,
+//             }
+//         });
+//         return res.status(200).json(server);
+//     } catch (e) {
+//         console.error(e);
+//         return res.status(500).send("Error");
+//     }
+// });
 app.post("/bot/link", verifyBot, async (req, res) => {
     try {
-        const { guildId, userId, serverId, guildName } = req.body;
+        const { guildId, userId, guildName } = req.body;
         const user = await prisma.user.findUnique({
             where: {
                 discordId: userId,
             }
         });
-        if (!user) return res.status(404).send("Not found");
-        const server = await prisma.server.update({
-            where: {
-                id: serverId,
-                ownerDiscord: user.discordId,
-            },
+        if (!user) return res.status(404).send("User not found");
+        const guild = await prisma.guild.create({
             data: {
-                connectedDiscordServer: guildId,
-                connectedDiscordServerName: guildName
+                guildId,
+                guildName,
+                User: {
+                    connect: {
+                        discordId: user.discordId
+                    }
+                }
             }
         });
-        if (server) {
-            return res.status(200).send("Success");
-        } else {
-            return res.status(404).send("Not found");
-        }
+        return res.status(200).send("Success");
     } catch (e) {
         console.error(e);
         return res.status(500).send("Error");
@@ -361,15 +313,15 @@ app.post("/bot/link", verifyBot, async (req, res) => {
 app.get("/bot/link", verifyBot, async (req, res) => {
     try {
         const { guildId } = req.query;
-        const server = await prisma.server.findFirst({
+        const guild = await prisma.guild.findUnique({
             where: {
-                connectedDiscordServer: guildId as string
+                guildId: guildId as string
             }
         });
-        if (server) {
-            return res.status(200).json(server);
+        if (guild) {
+            return res.status(200).send(guild);
         } else {
-            return res.status(404).send("Not found");
+            return res.status(400).json({ error: "Guild not found" });
         }
     } catch (e) {
         console.error(e);

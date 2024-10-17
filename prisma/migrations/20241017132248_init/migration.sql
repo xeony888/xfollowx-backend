@@ -3,19 +3,18 @@ CREATE TABLE "User" (
     "discordId" TEXT NOT NULL,
     "discordName" TEXT NOT NULL,
     "twitter" TEXT,
+    "days" INTEGER NOT NULL DEFAULT 0,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("discordId")
 );
 
 -- CreateTable
-CREATE TABLE "Server" (
-    "id" TEXT NOT NULL,
-    "ownerDiscord" TEXT NOT NULL,
-    "connectedDiscordServer" TEXT,
-    "connectedDiscordServerName" TEXT,
-    "subscribed" BOOLEAN NOT NULL,
+CREATE TABLE "Guild" (
+    "guildId" TEXT NOT NULL,
+    "guildName" TEXT NOT NULL,
+    "userDiscordId" TEXT,
 
-    CONSTRAINT "Server_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Guild_pkey" PRIMARY KEY ("guildId")
 );
 
 -- CreateTable
@@ -31,7 +30,7 @@ CREATE UNIQUE INDEX "_Follow_AB_unique" ON "_Follow"("A", "B");
 CREATE INDEX "_Follow_B_index" ON "_Follow"("B");
 
 -- AddForeignKey
-ALTER TABLE "Server" ADD CONSTRAINT "Server_ownerDiscord_fkey" FOREIGN KEY ("ownerDiscord") REFERENCES "User"("discordId") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Guild" ADD CONSTRAINT "Guild_userDiscordId_fkey" FOREIGN KEY ("userDiscordId") REFERENCES "User"("discordId") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_Follow" ADD CONSTRAINT "_Follow_A_fkey" FOREIGN KEY ("A") REFERENCES "User"("discordId") ON DELETE CASCADE ON UPDATE CASCADE;
