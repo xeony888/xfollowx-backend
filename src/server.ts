@@ -227,61 +227,6 @@ app.post("/:user/twitter/remove", verifyUser, async (req, res) => {
         return res.status(500).send("Error");
     }
 });
-// app.post("/server/:id/set", verifyUser, verifyUserOwnsServer, async (req, res) => {
-//     try {
-//         const { type } = req.body;
-//         const { id } = req.params;
-//         let subscription = type === "chain" ? Subscription.CHAIN : Subscription.STRIPE;
-//         await prisma.server.update({
-//             where: {
-//                 id,
-//             },
-//             data: {
-//                 subscription,
-//             }
-//         });
-//         return res.status(200).send("Success");
-//     } catch (e) {
-//         console.error(e);
-//         return res.status(500).json({ error: "Internal server error" });
-//     }
-// });
-// app.post("/server/:id", verifyUser, verifyUserOwnsServer, async (req, res) => {
-//     try {
-//         const { id } = req.params;
-//         // console.log({ id });
-//         const server = await prisma.server.findUnique({
-//             where: { id }
-//         });
-//         if (server) {
-//             return res.status(200).json(server);
-//         } else {
-//             return res.status(404).json({ error: "Not found" });
-//         }
-//     } catch (e) {
-//         console.error(e);
-//         return res.status(500).json({ error: "Internal server error" });
-//     }
-// });
-// app.post("/server", verifyUser, async (req, res) => {
-//     try {
-//         const { discordId } = req.body;
-//         const server = await prisma.server.create({
-//             data: {
-//                 owner: {
-//                     connect: {
-//                         discordId,
-//                     }
-//                 },
-//                 subscribed: false,
-//             }
-//         });
-//         return res.status(200).json(server);
-//     } catch (e) {
-//         console.error(e);
-//         return res.status(500).send("Error");
-//     }
-// });
 app.post("/bot/link", verifyBot, async (req, res) => {
     try {
         const { guildId, userId, guildName } = req.body;
