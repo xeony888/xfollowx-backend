@@ -150,7 +150,6 @@ app.post("/helio", async (req, res) => {
             console.log("Unauthorized: ", req.body.event);
             return res.status(401).json({ error: "Unauthorized" });
         }
-        const { event, transaction: { meta: { customerDetails: { discordUser }, productDetails } } } = req.body;
         console.log(req.body);
         return res.status(200).send("Success");
     } catch (e) {
