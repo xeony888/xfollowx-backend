@@ -297,6 +297,31 @@ app.get("/bot/link", verifyBot, async (req, res) => {
         return res.status(500).json({ error: "Internal server error" });
     }
 });
+app.post("/bot/unlink", verifyBot, async (req, res) => {
+    try {
+        const { guildId, userId } = req.body;
+        const guild = await prisma.guild.findUnique({
+            where: {
+                guildId
+            }
+        });
+        if (!guild) {
+            return res.status(404).json({ error: "This guild is not linked" });
+        }
+        if (guild.userDiscordId !== userId) {
+            return res.status(403).json({ error: "You are not the owner of this guild" });
+        }
+        await prisma.guild.delete({
+            where: {
+                guildId
+            }
+        });
+        return res.status(200).send("Success");
+    } catch (e) {
+        console.error(e);
+        return res.status(500).json({ error: "Internal server error" });
+    }
+});
 app.get("/bot/twitters", verifyBot, verifyPayment, async (req, res) => {
     try {
         // add guild field to req
