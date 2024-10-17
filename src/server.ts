@@ -150,7 +150,10 @@ app.post("/helio", async (req, res) => {
             console.log("Unauthorized: ", req.body.event);
             return res.status(401).json({ error: "Unauthorized" });
         }
-        console.log(req.body);
+        const { event, transactionObject: { quantity, meta: { transactionStatus, customerDetails } } } = req.body;
+        if (event === "CREATED" && transactionStatus === "SUCCESS") {
+            console.log({ customerDetails });
+        }
         return res.status(200).send("Success");
     } catch (e) {
         console.error(e);
@@ -235,8 +238,8 @@ app.post("/bot/link", verifyBot, async (req, res) => {
                 discordId: userId,
             }
         });
-        if (!user) return res.status(404).send("User not found");
-        const guild = await prisma.guild.create({
+        if (!user) return res.status(404).json({ error: "User not found" });
+        await prisma.guild.create({
             data: {
                 guildId,
                 guildName,
@@ -269,7 +272,7 @@ app.get("/bot/link", verifyBot, async (req, res) => {
         }
     } catch (e) {
         console.error(e);
-        return res.status(500).send("Error");
+        return res.status(500).json({ error: "Internal server error" });
     }
 });
 app.get("/bot/twitters", verifyBot, verifyPayment, async (req, res) => {
