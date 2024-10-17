@@ -29,3 +29,9 @@ model Guild {
   User          User?   @relation(fields: [userDiscordId], references: [discordId])
   userDiscordId String?
 }
+
+model Missed {
+  id     String @id @default(uuid())
+  user   String
+  amount Int
+}

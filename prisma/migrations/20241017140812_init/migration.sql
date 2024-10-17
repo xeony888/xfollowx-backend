@@ -18,6 +18,15 @@ CREATE TABLE "Guild" (
 );
 
 -- CreateTable
+CREATE TABLE "Missed" (
+    "id" TEXT NOT NULL,
+    "user" TEXT NOT NULL,
+    "amount" INTEGER NOT NULL,
+
+    CONSTRAINT "Missed_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "_Follow" (
     "A" TEXT NOT NULL,
     "B" TEXT NOT NULL

@@ -152,7 +152,29 @@ app.post("/helio", async (req, res) => {
         }
         const { event, transactionObject: { quantity, meta: { transactionStatus, customerDetails } } } = req.body;
         if (event === "CREATED" && transactionStatus === "SUCCESS") {
-            console.log({ customerDetails });
+            const discordId = customerDetails.discordUser.id;
+            const user = await prisma.user.findUnique({
+                where: {
+                    discordId,
+                }
+            });
+            if (user) {
+                await prisma.user.update({
+                    where: {
+                        discordId
+                    },
+                    data: {
+                        days: user.days + quantity
+                    }
+                });
+            } else {
+                await prisma.missed.create({
+                    data: {
+                        user: discordId,
+                        amount: quantity
+                    }
+                });
+            }
         }
         return res.status(200).send("Success");
     } catch (e) {
